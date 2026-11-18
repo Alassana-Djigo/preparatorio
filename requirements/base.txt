@@ -1,3 +1,4 @@
 # Dependências diretas de produção.
 # ~=6.1.0 permite correções 6.1.x, mas nunca salta para 6.2 (ver ADR 0004).
 django~=6.1.0
+python-dotenv~=1.2
