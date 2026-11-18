@@ -8,8 +8,8 @@ Primeira proposta, a rever com ADRs quando houver razão para mudar. Os nomes no
 |---|---|
 | `core` | Sistema de design, componentes e utilitários comuns |
 | `accounts` | Registo, login, perfil e preferências do estudante |
-| `academics` | Universidades, faculdades, cursos, concursos, disciplinas exigidas por ano |
-| `content` | Disciplinas, temas, aulas, exemplos, origem e verificação do conteúdo |
+| `academics` | Universidades, faculdades, cursos, concursos, catálogo de disciplinas e exigências por ano |
+| `content` | Temas, aulas, exemplos, origem e verificação do conteúdo |
 | `exercises` | Questões, resoluções e correção de respostas |
 | `progress` | Diagnóstico, domínio por tema, revisões e plano de estudo |
 | `exams` | Provas anteriores, simulados com cronómetro e resultados |
