@@ -38,7 +38,7 @@ O ramo `main` está protegido: só recebe código através de pull request com o
 
    ```bash
    gh pr checks --watch
-   gh pr merge --squash
+   gh pr merge --squash --delete-branch
    ```
 
 7. Voltar ao `main` e atualizar: `git switch main && git pull`.
@@ -65,3 +65,4 @@ Exemplos: `feat(auth): implement student registration`, `fix(tutor): handle inva
 - Segredos nunca entram no Git. O `.env` está no `.gitignore`; os nomes das variáveis estão no `.env.example`.
 - Sem `git push --force` nem `git reset --hard` sem discutir os riscos antes.
 - Se o processo de instalação mudar, o `README.md` é atualizado no mesmo commit.
+- Depois de juntado, o ramo é apagado (local e no GitHub): o `--delete-branch` do passo 6 trata disso.
