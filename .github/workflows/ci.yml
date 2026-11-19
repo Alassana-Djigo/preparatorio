@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  qualidade:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: preparatorio
+          POSTGRES_PASSWORD: senha-so-para-ci
+          POSTGRES_DB: preparatorio
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U preparatorio"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    # Valores descartáveis, válidos só dentro desta máquina temporária.
+    env:
+      DJANGO_SECRET_KEY: chave-so-para-ci-sem-valor-real
+      DJANGO_DEBUG: "false"
+      DJANGO_ALLOWED_HOSTS: localhost
+      DB_NAME: preparatorio
+      DB_USER: preparatorio
+      DB_PASSWORD: senha-so-para-ci
+      DB_HOST: localhost
+      DB_PORT: "5432"
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements/*.txt
+
+      - name: Instalar dependências
+        run: pip install -r requirements/dev.txt
+
+      - name: Ruff (erros)
+        run: ruff check .
+
+      - name: Ruff (formato)
+        run: ruff format --check .
+
+      - name: Verificação do Django
+        run: python manage.py check
+
+      - name: Migrações em falta
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Testes
+        run: pytest
