@@ -7,19 +7,21 @@ Plataforma web de aprendizagem e preparação para exames de acesso ao ensino su
 ## Como pôr o projeto a correr num PC novo
 
 > Este guia é atualizado sempre que o processo de instalação muda.
+>
+> Testado em Debian 13. Noutros sistemas, os comandos do passo 5 (`sudo -u postgres`) mudam; os comandos SQL são os mesmos.
 
 ### O que precisas de ter instalado
 
-- Git
+- Git, com o nome e o email configurados: `git config --global user.name 'O teu Nome'` e `git config --global user.email 'o-teu@email.com'`
 - Python 3.13 com suporte a ambientes virtuais (no Debian/Ubuntu: `sudo apt install python3-venv`)
 - PostgreSQL 15 ou superior, com o servidor a correr (testado com a versão 17)
 
 ### Passos
 
-1. Clonar o repositório (precisa de acesso ao GitHub por SSH):
+1. Clonar o repositório (é público, por isso o endereço HTTPS não precisa de conta nem de chaves):
 
    ```bash
-   git clone git@github.com:Alassana-Djigo/preparatorio.git
+   git clone https://github.com/Alassana-Djigo/preparatorio.git
    cd preparatorio
    ```
 
@@ -63,6 +65,17 @@ Plataforma web de aprendizagem e preparação para exames de acesso ao ensino su
    ```
 
    O `check` deve responder `System check identified no issues (0 silenced).`
+
+## Enviar código a partir de um PC novo
+
+Para abrir pull requests (ver [CONTRIBUTING.md](CONTRIBUTING.md)) precisas do GitHub CLI e de entrar na tua conta:
+
+```bash
+sudo apt install gh
+gh auth login
+```
+
+No `gh auth login`, escolhe `GitHub.com` e `HTTPS`, e aceita autenticar o Git com as credenciais do GitHub. Noutros sistemas, o `gh` instala-se como explica https://cli.github.com.
 
 ## Qualidade do código
 
