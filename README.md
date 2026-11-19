@@ -33,7 +33,7 @@ Plataforma web de aprendizagem e preparação para exames de acesso ao ensino su
 3. Instalar as dependências:
 
    ```bash
-   pip install -r requirements/base.txt
+   pip install -r requirements/dev.txt
    ```
 
 4. Criar o `.env` com uma chave secreta e uma senha da base de dados novas:
@@ -63,6 +63,15 @@ Plataforma web de aprendizagem e preparação para exames de acesso ao ensino su
    ```
 
    O `check` deve responder `System check identified no issues (0 silenced).`
+
+## Qualidade do código
+
+Antes de cada commit:
+
+```bash
+ruff check .
+ruff format --check .
+```
 
 ## Documentação
 

@@ -1,0 +1,3 @@
+# Dependências de desenvolvimento: tudo o que é de produção, mais as ferramentas de qualidade.
+-r base.txt
+ruff~=0.17.5
