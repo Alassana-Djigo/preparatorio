@@ -12,6 +12,7 @@ Plataforma web de aprendizagem e preparação para exames de acesso ao ensino su
 
 - Git
 - Python 3.13 com suporte a ambientes virtuais (no Debian/Ubuntu: `sudo apt install python3-venv`)
+- PostgreSQL 15 ou superior, com o servidor a correr (testado com a versão 17)
 
 ### Passos
 
@@ -35,22 +36,33 @@ Plataforma web de aprendizagem e preparação para exames de acesso ao ensino su
    pip install -r requirements/base.txt
    ```
 
-4. Criar o ficheiro `.env` com uma chave secreta nova:
+4. Criar o `.env` com uma chave secreta e uma senha da base de dados novas:
 
    ```bash
    cp .env.example .env
+   DB_PASS=$(python -c 'import secrets; print(secrets.token_urlsafe(24))')
    sed -i "s/^DJANGO_SECRET_KEY=.*/DJANGO_SECRET_KEY=$(python -c 'import secrets; print(secrets.token_urlsafe(50))')/" .env
+   sed -i "s/^DB_PASSWORD=.*/DB_PASSWORD=$DB_PASS/" .env
    ```
 
    O `.env` nunca vai para o Git. Cada computador tem o seu.
 
-5. Verificar que tudo está bem:
+5. Criar o utilizador e a base de dados no PostgreSQL (usa a mesma senha do passo anterior, por isso corre no mesmo terminal):
 
    ```bash
+   sudo -u postgres psql -c "CREATE USER preparatorio WITH PASSWORD '$DB_PASS' CREATEDB;"
+   sudo -u postgres psql -c "CREATE DATABASE preparatorio OWNER preparatorio;"
+   unset DB_PASS
+   ```
+
+6. Criar as tabelas e verificar que tudo está bem:
+
+   ```bash
+   python manage.py migrate
    python manage.py check
    ```
 
-   Deve responder `System check identified no issues (0 silenced).`
+   O `check` deve responder `System check identified no issues (0 silenced).`
 
 ## Documentação
 
