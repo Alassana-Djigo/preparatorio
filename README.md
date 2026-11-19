@@ -71,6 +71,7 @@ Antes de cada commit:
 ```bash
 ruff check .
 ruff format --check .
+pytest
 ```
 
 ## Documentação

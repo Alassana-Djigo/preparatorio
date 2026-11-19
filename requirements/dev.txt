@@ -1,3 +1,5 @@
 # Dependências de desenvolvimento: tudo o que é de produção, mais as ferramentas de qualidade.
 -r base.txt
 ruff~=0.17.5
+pytest~=9.2
+pytest-django~=4.14
