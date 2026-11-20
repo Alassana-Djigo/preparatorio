@@ -8,7 +8,7 @@ Plataforma web de aprendizagem e preparação para exames de acesso ao ensino su
 
 > Este guia é atualizado sempre que o processo de instalação muda.
 >
-> Testado em Debian 13. Noutros sistemas, os comandos do passo 5 (`sudo -u postgres`) mudam; os comandos SQL são os mesmos.
+> Testado em Debian 13 e Ubuntu. Noutros sistemas, os comandos do passo 5 (`sudo -u postgres`) mudam; os comandos SQL são os mesmos.
 
 ### O que precisas de ter instalado
 
@@ -75,7 +75,14 @@ sudo apt install gh
 gh auth login
 ```
 
-No `gh auth login`, escolhe `GitHub.com` e `HTTPS`, e aceita autenticar o Git com as credenciais do GitHub. Noutros sistemas, o `gh` instala-se como explica https://cli.github.com.
+No `gh auth login`, escolhe `GitHub.com` e `SSH`, e aceita a chave SSH que o `gh` propuser. Como o clone foi por HTTPS, muda depois o endereço do remoto para SSH e testa a ligação:
+
+```bash
+git remote set-url origin git@github.com:Alassana-Djigo/preparatorio.git
+ssh -T git@github.com
+```
+
+Na primeira ligação, responde `yes` à pergunta sobre o servidor. Deves ver `Hi Alassana-Djigo! You've successfully authenticated`. Noutros sistemas, o `gh` instala-se como explica https://cli.github.com.
 
 ## Qualidade do código
 
