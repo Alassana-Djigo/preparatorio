@@ -98,5 +98,7 @@ pytest
 
 - [Visão do produto](docs/visao.md)
 - [Arquitetura e módulos](docs/arquitetura.md)
+- [Sistema de design](docs/design-system.md)
+- [Domínio académico](docs/dominio-academico.md)
 - Decisões de arquitetura: pasta [docs/adr](docs/adr)
 - [Como contribuir](CONTRIBUTING.md)
