@@ -41,7 +41,7 @@ O ramo `main` está protegido: só recebe código através de pull request com o
    gh pr merge --squash --delete-branch
    ```
 
-7. Voltar ao `main` e atualizar: `git switch main && git pull`.
+7. Atualizar o `main` e limpar etiquetas de ramos antigos: `git switch main && git pull && git fetch --prune`.
 
 ## Mensagens de commit (Conventional Commits)
 
