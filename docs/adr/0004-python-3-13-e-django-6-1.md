@@ -1,6 +1,6 @@
 # ADR 0004: Python 3.13 e Django 6.1
 
-Estado: aceite
+Estado: aceite, complementado pelo [ADR 0007](0007-python-3-13-e-3-14.md)
 Data: 2026-11-18
 
 ## Contexto

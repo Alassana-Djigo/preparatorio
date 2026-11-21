@@ -13,7 +13,7 @@ Plataforma web de aprendizagem e preparação para exames de acesso ao ensino su
 ### O que precisas de ter instalado
 
 - Git, com o nome e o email configurados: `git config --global user.name 'O teu Nome'` e `git config --global user.email 'o-teu@email.com'`
-- Python 3.13 com suporte a ambientes virtuais (no Debian/Ubuntu: `sudo apt install python3-venv`)
+- Python 3.13 ou 3.14 com suporte a ambientes virtuais (no Debian/Ubuntu: `sudo apt install python3-venv`)
 - PostgreSQL 15 ou superior, com o servidor a correr (testado com a versão 17)
 
 ### Passos
