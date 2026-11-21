@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Módulos do projeto
     "accounts",
+    "academics",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
