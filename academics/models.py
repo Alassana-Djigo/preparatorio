@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
 
 
@@ -114,3 +116,71 @@ class Subject(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class AdmissionCycle(Provenance):
+    """Concurso de acesso: uma instituição num ano letivo."""
+
+    institution = models.ForeignKey(
+        Institution, on_delete=models.PROTECT, related_name="admission_cycles"
+    )
+    academic_year = models.CharField(
+        max_length=9,
+        validators=[RegexValidator(r"^\d{4}(/\d{4})?$", "Use o formato 2026 ou 2026/2027.")],
+    )
+
+    class Meta(Provenance.Meta):
+        ordering = ["-academic_year"]
+        constraints = [
+            *Provenance.Meta.constraints,
+            models.UniqueConstraint(
+                fields=["institution", "academic_year"],
+                name="academics_cycle_unique_year_per_institution",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.institution} {self.academic_year}"
+
+
+class CourseRequirement(Provenance):
+    """Num concurso, um curso exige uma disciplina, com um peso opcional.
+
+    A regra de que o curso pertence à instituição do concurso atravessa três tabelas e não
+    se consegue exprimir numa restrição da base de dados. É validada ao gravar. Operações em
+    massa (bulk_create, update) saltam esta validação, por isso não se usam aqui sem a repetir.
+    """
+
+    admission_cycle = models.ForeignKey(
+        AdmissionCycle, on_delete=models.PROTECT, related_name="requirements"
+    )
+    course = models.ForeignKey(Course, on_delete=models.PROTECT, related_name="requirements")
+    subject = models.ForeignKey(Subject, on_delete=models.PROTECT, related_name="requirements")
+    weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+
+    class Meta(Provenance.Meta):
+        constraints = [
+            *Provenance.Meta.constraints,
+            models.UniqueConstraint(
+                fields=["admission_cycle", "course", "subject"],
+                name="academics_requirement_unique_per_cycle_course_subject",
+            ),
+            models.CheckConstraint(
+                condition=models.Q(weight__isnull=True) | models.Q(weight__gt=0),
+                name="academics_requirement_weight_positive",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.admission_cycle}: {self.course} - {self.subject}"
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+        if not (self.course_id and self.admission_cycle_id):
+            return
+        if self.course.faculty.institution_id != self.admission_cycle.institution_id:
+            raise ValidationError("O curso tem de pertencer à instituição do concurso.")
