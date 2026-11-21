@@ -66,3 +66,51 @@ class Institution(Provenance):
 
     def __str__(self):
         return self.name
+
+
+class Faculty(Provenance):
+    institution = models.ForeignKey(Institution, on_delete=models.PROTECT, related_name="faculties")
+    name = models.CharField(max_length=200)
+
+    class Meta(Provenance.Meta):
+        ordering = ["name"]
+        constraints = [
+            *Provenance.Meta.constraints,
+            models.UniqueConstraint(
+                fields=["institution", "name"],
+                name="academics_faculty_unique_name_per_institution",
+            ),
+        ]
+
+    def __str__(self):
+        return self.name
+
+
+class Course(Provenance):
+    faculty = models.ForeignKey(Faculty, on_delete=models.PROTECT, related_name="courses")
+    name = models.CharField(max_length=200)
+
+    class Meta(Provenance.Meta):
+        ordering = ["name"]
+        constraints = [
+            *Provenance.Meta.constraints,
+            models.UniqueConstraint(
+                fields=["faculty", "name"],
+                name="academics_course_unique_name_per_faculty",
+            ),
+        ]
+
+    def __str__(self):
+        return self.name
+
+
+class Subject(models.Model):
+    """Catálogo único e partilhado de disciplinas (Matemática, Física...)."""
+
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
