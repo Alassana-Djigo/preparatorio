@@ -22,11 +22,15 @@ class Source(models.Model):
         WEBSITE = "website", "Site da instituição"
         OTHER = "other", "Outro"
 
-    kind = models.CharField(max_length=20, choices=Kind)
-    title = models.CharField(max_length=200)
-    url = models.URLField(blank=True)
-    published_on = models.DateField(null=True, blank=True)
-    retrieved_on = models.DateField(null=True, blank=True)
+    kind = models.CharField("tipo", max_length=20, choices=Kind)
+    title = models.CharField("título", max_length=200)
+    url = models.URLField("endereço (URL)", blank=True)
+    published_on = models.DateField("publicado em", null=True, blank=True)
+    retrieved_on = models.DateField("consultado em", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "fonte"
+        verbose_name_plural = "fontes"
 
     def __str__(self):
         return self.title
@@ -39,12 +43,17 @@ class Provenance(models.Model):
     oficial e tiver fonte, e a base de dados faz cumprir essa regra.
     """
 
-    origin = models.CharField(max_length=10, choices=Origin, default=Origin.DEMO)
-    source = models.ForeignKey(Source, null=True, blank=True, on_delete=models.PROTECT)
-    verification_status = models.CharField(
-        max_length=12, choices=VerificationStatus, default=VerificationStatus.UNVERIFIED
+    origin = models.CharField("origem", max_length=10, choices=Origin, default=Origin.DEMO)
+    source = models.ForeignKey(
+        Source, verbose_name="fonte", null=True, blank=True, on_delete=models.PROTECT
     )
-    verified_on = models.DateField(null=True, blank=True)
+    verification_status = models.CharField(
+        "estado de verificação",
+        max_length=12,
+        choices=VerificationStatus,
+        default=VerificationStatus.UNVERIFIED,
+    )
+    verified_on = models.DateField("verificado em", null=True, blank=True)
 
     class Meta:
         abstract = True
@@ -55,27 +64,37 @@ class Provenance(models.Model):
                     | (models.Q(origin=Origin.OFFICIAL) & models.Q(source__isnull=False))
                 ),
                 name="%(app_label)s_%(class)s_verified_needs_official_source",
+                violation_error_message="Um dado verificado tem de ser oficial e ter fonte.",
             ),
         ]
 
 
 class Institution(Provenance):
-    name = models.CharField(max_length=200)
-    acronym = models.CharField(max_length=20, blank=True)
+    name = models.CharField("nome", max_length=200)
+    acronym = models.CharField("sigla", max_length=20, blank=True)
 
     class Meta(Provenance.Meta):
         ordering = ["name"]
+        verbose_name = "instituição"
+        verbose_name_plural = "instituições"
 
     def __str__(self):
         return self.name
 
 
 class Faculty(Provenance):
-    institution = models.ForeignKey(Institution, on_delete=models.PROTECT, related_name="faculties")
-    name = models.CharField(max_length=200)
+    institution = models.ForeignKey(
+        Institution,
+        verbose_name="instituição",
+        on_delete=models.PROTECT,
+        related_name="faculties",
+    )
+    name = models.CharField("nome", max_length=200)
 
     class Meta(Provenance.Meta):
         ordering = ["name"]
+        verbose_name = "faculdade"
+        verbose_name_plural = "faculdades"
         constraints = [
             *Provenance.Meta.constraints,
             models.UniqueConstraint(
@@ -89,11 +108,15 @@ class Faculty(Provenance):
 
 
 class Course(Provenance):
-    faculty = models.ForeignKey(Faculty, on_delete=models.PROTECT, related_name="courses")
-    name = models.CharField(max_length=200)
+    faculty = models.ForeignKey(
+        Faculty, verbose_name="faculdade", on_delete=models.PROTECT, related_name="courses"
+    )
+    name = models.CharField("nome", max_length=200)
 
     class Meta(Provenance.Meta):
         ordering = ["name"]
+        verbose_name = "curso"
+        verbose_name_plural = "cursos"
         constraints = [
             *Provenance.Meta.constraints,
             models.UniqueConstraint(
@@ -109,10 +132,12 @@ class Course(Provenance):
 class Subject(models.Model):
     """Catálogo único e partilhado de disciplinas (Matemática, Física...)."""
 
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField("nome", max_length=100, unique=True)
 
     class Meta:
         ordering = ["name"]
+        verbose_name = "disciplina"
+        verbose_name_plural = "disciplinas"
 
     def __str__(self):
         return self.name
@@ -122,15 +147,21 @@ class AdmissionCycle(Provenance):
     """Concurso de acesso: uma instituição num ano letivo."""
 
     institution = models.ForeignKey(
-        Institution, on_delete=models.PROTECT, related_name="admission_cycles"
+        Institution,
+        verbose_name="instituição",
+        on_delete=models.PROTECT,
+        related_name="admission_cycles",
     )
     academic_year = models.CharField(
+        "ano letivo",
         max_length=9,
         validators=[RegexValidator(r"^\d{4}(/\d{4})?$", "Use o formato 2026 ou 2026/2027.")],
     )
 
     class Meta(Provenance.Meta):
         ordering = ["-academic_year"]
+        verbose_name = "concurso de acesso"
+        verbose_name_plural = "concursos de acesso"
         constraints = [
             *Provenance.Meta.constraints,
             models.UniqueConstraint(
@@ -152,13 +183,22 @@ class CourseRequirement(Provenance):
     """
 
     admission_cycle = models.ForeignKey(
-        AdmissionCycle, on_delete=models.PROTECT, related_name="requirements"
+        AdmissionCycle,
+        verbose_name="concurso de acesso",
+        on_delete=models.PROTECT,
+        related_name="requirements",
     )
-    course = models.ForeignKey(Course, on_delete=models.PROTECT, related_name="requirements")
-    subject = models.ForeignKey(Subject, on_delete=models.PROTECT, related_name="requirements")
-    weight = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    course = models.ForeignKey(
+        Course, verbose_name="curso", on_delete=models.PROTECT, related_name="requirements"
+    )
+    subject = models.ForeignKey(
+        Subject, verbose_name="disciplina", on_delete=models.PROTECT, related_name="requirements"
+    )
+    weight = models.DecimalField("peso", max_digits=5, decimal_places=2, null=True, blank=True)
 
     class Meta(Provenance.Meta):
+        verbose_name = "exigência"
+        verbose_name_plural = "exigências"
         constraints = [
             *Provenance.Meta.constraints,
             models.UniqueConstraint(
@@ -168,6 +208,7 @@ class CourseRequirement(Provenance):
             models.CheckConstraint(
                 condition=models.Q(weight__isnull=True) | models.Q(weight__gt=0),
                 name="academics_requirement_weight_positive",
+                violation_error_message="O peso tem de ser positivo.",
             ),
         ]
 
