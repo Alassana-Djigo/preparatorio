@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -36,6 +37,28 @@ class Source(models.Model):
         return self.title
 
 
+class ProvenanceQuerySet(models.QuerySet):
+    def public(self):
+        """Só o que o estudante pode ver (ADR 0009).
+
+        Um dado é público se for oficial e verificado ou, com SHOW_DEMO_DATA ligada, se for de
+        demonstração. Tudo aquilo de que depende (visibility_paths) também tem de o ser.
+        """
+        mostrar_demonstracao = getattr(settings, "SHOW_DEMO_DATA", False)
+        queryset = self
+        for caminho in self.model.visibility_paths:
+            visivel = models.Q(
+                **{
+                    f"{caminho}origin": Origin.OFFICIAL,
+                    f"{caminho}verification_status": VerificationStatus.VERIFIED,
+                }
+            )
+            if mostrar_demonstracao:
+                visivel |= models.Q(**{f"{caminho}origin": Origin.DEMO})
+            queryset = queryset.filter(visivel)
+        return queryset
+
+
 class Provenance(models.Model):
     """Origem e verificação de um dado que descreve a realidade.
 
@@ -55,6 +78,11 @@ class Provenance(models.Model):
     )
     verified_on = models.DateField("verificado em", null=True, blank=True)
 
+    # Caminhos até aos dados de que este depende (ver ProvenanceQuerySet.public).
+    visibility_paths = ("",)
+
+    objects = ProvenanceQuerySet.as_manager()
+
     class Meta:
         abstract = True
         constraints = [
@@ -67,6 +95,14 @@ class Provenance(models.Model):
                 violation_error_message="Um dado verificado tem de ser oficial e ter fonte.",
             ),
         ]
+
+    @property
+    def provenance_label(self):
+        if self.origin == Origin.DEMO:
+            return "Dados de demonstração"
+        if self.verification_status == VerificationStatus.VERIFIED:
+            return "Oficial verificado"
+        return "Oficial, por verificar"
 
 
 class Institution(Provenance):
@@ -91,6 +127,8 @@ class Faculty(Provenance):
     )
     name = models.CharField("nome", max_length=200)
 
+    visibility_paths = ("", "institution__")
+
     class Meta(Provenance.Meta):
         ordering = ["name"]
         verbose_name = "faculdade"
@@ -112,6 +150,8 @@ class Course(Provenance):
         Faculty, verbose_name="faculdade", on_delete=models.PROTECT, related_name="courses"
     )
     name = models.CharField("nome", max_length=200)
+
+    visibility_paths = ("", "faculty__", "faculty__institution__")
 
     class Meta(Provenance.Meta):
         ordering = ["name"]
@@ -158,6 +198,8 @@ class AdmissionCycle(Provenance):
         validators=[RegexValidator(r"^\d{4}(/\d{4})?$", "Use o formato 2026 ou 2026/2027.")],
     )
 
+    visibility_paths = ("", "institution__")
+
     class Meta(Provenance.Meta):
         ordering = ["-academic_year"]
         verbose_name = "concurso de acesso"
@@ -195,6 +237,15 @@ class CourseRequirement(Provenance):
         Subject, verbose_name="disciplina", on_delete=models.PROTECT, related_name="requirements"
     )
     weight = models.DecimalField("peso", max_digits=5, decimal_places=2, null=True, blank=True)
+
+    visibility_paths = (
+        "",
+        "admission_cycle__",
+        "admission_cycle__institution__",
+        "course__",
+        "course__faculty__",
+        "course__faculty__institution__",
+    )
 
     class Meta(Provenance.Meta):
         verbose_name = "exigência"

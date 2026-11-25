@@ -139,3 +139,6 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
+
+# Mostrar dados de demonstração ao estudante (ADR 0009). Desligado por defeito.
+SHOW_DEMO_DATA = os.environ.get("DJANGO_SHOW_DEMO_DATA", "false").lower() == "true"
