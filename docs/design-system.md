@@ -37,7 +37,7 @@ Regras que decorrem da verificação:
 
 - Interface e texto corrido: Plus Jakarta Sans. Títulos editoriais selecionados: Instrument Serif.
 - Fallbacks locais: fontes do sistema (sem serifa e com serifa), para o site funcionar sem as fontes externas.
-- Decisão em aberto: alojar as fontes no próprio servidor, o que ajuda em ligações lentas, e confirmar as licenças de ambas antes.
+- Alojadas no próprio servidor, em ficheiros woff2 do subconjunto latino e com a licença ao lado (ver [ADR 0010](adr/0010-fontes-alojadas-no-servidor.md)).
 - Corpo de texto com 16px no mínimo, altura de linha 1,5 e linhas de leitura até cerca de 70 caracteres.
 - Fórmulas matemáticas: KaTeX, com apresentação própria e legível (decisão final na Fase 5).
 
@@ -98,5 +98,4 @@ Alternar listas, divisórias, colunas e layouts assimétricos: nem tudo é cart�
 ## Por fazer antes da Fase 3
 
 - Referências visuais escolhidas pelo dono do projeto: extrair princípios de hierarquia, densidade e espaçamento, sem copiar interfaces.
-- Decidir o alojamento das fontes e confirmar as licenças.
-- Wireframes das páginas principais.
+- Validar os [fluxos e wireframes](fluxos-e-wireframes.md) das páginas principais.
