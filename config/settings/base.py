@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # Módulos do projeto
     "accounts",
     "academics",
+    "core",
 ]
 
 AUTH_USER_MODEL = "accounts.User"
